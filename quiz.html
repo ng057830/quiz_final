@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorando el Álgebra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$']]},
+            messageStyle: "none"
+        });
+    </script>
+    <style>
+        :root {
+            --primary: #FF69B4;
+            --secondary: #4A90E2;
+            --background: #FFF5F7;
+            --text: #333333;
+            --light: #FFFFFF;
+            --hint: #E6F3FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: #FFF;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .options {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option {
+            padding: 1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: #F8F9FA;
+            border-color: var(--secondary);
+        }
+
+        .option.selected {
+            background: var(--hint);
+            border-color: var(--secondary);
+        }
+
+        .hint-container {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--hint);
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .hint {
+            color: var(--secondary);
+            font-style: italic;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .correct {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .incorrect {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Exploremos el Álgebra! 🌟</h1>
+            <p>Descubre el fascinante mundo de las expresiones algebraicas</p>
+        </div>
+
+        <div id="quiz-container"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "En la expresión algebraica $4xy^3z^2$, ¿cuál es el grado del término?",
+                options: [
+                    "4",
+                    "6",
+                    "5",
+                    "3"
+                ],
+                correct: 1,
+                hints: [
+                    "Piensa en cómo las potencias afectan al grado",
+                    "¿Qué pasa con las variables que no tienen exponente escrito?",
+                    "Observa cada variable por separado",
+                    "Las potencias tienen un papel importante aquí"
+                ],
+                explanation: "El grado del término es 6, porque sumamos los exponentes de todas las variables: x tiene exponente 1 (no escrito), y tiene exponente 3, y z tiene exponente 2. Por lo tanto: 1 + 3 + 2 = 6."
+            },
+            {
+                question: "Ana necesita expresar algebraicamente \"La mitad de un número disminuido en tres\". ¿Cuál es la expresión correcta?",
+                options: [
+                    "$(x - 3) ÷ 2$",
+                    "$\\frac{x}{2} - 3$",
+                    "$\\frac{x - 3}{2}$",
+                    "$\\frac{3}{2} - x$"
+                ],
+                correct: 1,
+                hints: [
+                    "¿Qué significa \"la mitad\" en términos matemáticos?",
+                    "Piensa en el orden de las palabras en la frase",
+                    "¿Qué operación debería hacerse primero?",
+                    "Las palabras clave indican el orden de las operaciones"
+                ],
+                explanation: "La expresión correcta es $\\frac{x}{2} - 3$ porque primero tomamos la mitad del número (dividir x entre 2) y luego le restamos 3."
+            },
+            {
+                question: "¿Cuál de estas expresiones representa un monomio?",
+                options: [
+                    "$2x + y$",
+                    "$x^2y^3$",
+                    "$3x - 2$",
+                    "$a + b + c$"
+                ],
+                correct: 1,
+                hints: [
+                    "Observa los símbolos que separan términos",
+                    "¿Qué signos NO debería tener un monomio?",
+                    "Piensa en las operaciones permitidas entre variables",
+                    "¿Cuántos términos debería tener?"
+                ],
+                explanation: "Un monomio es una expresión algebraica que consta de un solo término. $x^2y^3$ es un monomio porque solo tiene variables multiplicadas entre sí con un exponente."
+            },
+            {
+                question: "Si tienes la expresión $5x^2 - 3x^2 + 2x - x$, ¿cuál es su forma reducida?",
+                options: [
+                    "$2x^2 + x$",
+                    "$2x^2 - x$",
+                    "$8x^2 + 3x$",
+                    "$2x^2$"
+                ],
+                correct: 0,
+                hints: [
+                    "Observa qué términos comparten las mismas variables",
+                    "Los exponentes te ayudan a identificar términos similares",
+                    "¿Cuántos tipos diferentes de términos hay?",
+                    "Organiza los términos por sus características"
+                ],
+                explanation: "Agrupando términos semejantes: los términos con $x^2$ son $5x^2 - 3x^2 = 2x^2$, y los términos con x son $2x - x = x$. Por lo tanto, la expresión reducida es $2x^2 + x$."
+            },
+            {
+                question: "¿En qué profesión sería más útil el uso de ecuaciones algebraicas?",
+                options: [
+                    "Un florista",
+                    "Un ingeniero químico",
+                    "Un historiador",
+                    "Un chef"
+                ],
+                correct: 1,
+                hints: [
+                    "¿Quién necesita hacer más cálculos numéricos?",
+                    "Piensa en trabajos que requieran mediciones exactas",
+                    "¿Qué profesión necesita hacer más conversiones?",
+                    "Considera quién trabaja más con fórmulas"
+                ],
+                explanation: "Un ingeniero químico usa constantemente ecuaciones algebraicas para calcular concentraciones, balancear ecuaciones químicas, determinar proporciones de reactivos y productos, y resolver problemas de equilibrio químico."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let hintIndex = 0;
+        let selectedAnswer = null;
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            const quizContainer = document.getElementById('quiz-container');
+            
+            const questionHTML = `
+                <div class="question-container">
+                    <div class="question">${question.question}</div>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option" onclick="selectOption(${index})">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div class="hint-container" id="hint-container">
+                        <p class="hint" id="hint-text"></p>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <button class="button" onclick="checkAnswer()" id="check-button">Verificar</button>
+                    <button class="button" onclick="showHint()" id="hint-button" style="background: var(--secondary); margin-left: 10px;">¿Una pista?</button>
+                    ${currentQuestion < questions.length - 1 ? 
+                        `<button class="button" onclick="nextQuestion()" id="next-button" style="display: none; background: var(--primary); float: right;">Siguiente pregunta</button>` :
+                        `<button class="button" onclick="finishQuiz()" id="finish-button" style="display: none; background: var(--primary); float: right;">Finalizar</button>`
+                    }
+                </div>
+            `;
+
+            quizContainer.innerHTML = questionHTML;
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, quizContainer]);
+        }
+
+        function selectOption(index) {
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelectorAll('.option')[index].classList.add('selected');
+            selectedAnswer = index;
+        }
+
+        function showHint() {
+            const question = questions[currentQuestion];
+            const hintContainer = document.getElementById('hint-container');
+            const hintText = document.getElementById('hint-text');
+            
+            if (hintIndex < question.hints.length) {
+                hintContainer.style.display = 'block';
+                hintText.textContent = question.hints[hintIndex];
+                hintIndex++;
+            }
+        }
+
+        function checkAnswer() {
+            if (selectedAnswer === null) return;
+
+            const feedback = document.getElementById('feedback');
+            const question = questions[currentQuestion];
+            const nextButton = document.getElementById('next-button');
+            const finishButton = document.getElementById('finish-button');
+            
+            feedback.style.display = 'block';
+            
+            if (selectedAnswer === question.correct) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `¡Muy bien! ${question.explanation}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `¡Sigue intentando! ${question.explanation}`;
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                nextButton.style.display = 'inline-block';
+            } else {
+                finishButton.style.display = 'inline-block';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            selectedAnswer = null;
+            hintIndex = 0;
+            displayQuestion();
+        }
+
+        function finishQuiz() {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = `
+                <div class="question-container" style="text-align: center;">
+                    <h2 style="color: var(--primary); margin-bottom: 1rem;">¡Gracias por explorar el álgebra! 🌟</h2>
+                    <p style="margin-bottom: 1rem;">Has completado todas las preguntas. ¡Cada día aprendemos algo nuevo!</p>
+                    <button class="button" onclick="restartQuiz()">Intentar de nuevo</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            selectedAnswer = null;
+            hintIndex = 0;
+            displayQuestion();
+        }
+
+        // Iniciar el quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
